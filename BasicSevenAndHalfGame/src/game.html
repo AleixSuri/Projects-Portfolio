@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <link rel="stylesheet" type="text/css" href="../library/style.css" />
+        <script src="game_start.js"></script>
+        <title>Seven and a half</title>
+    </head>
+    <body>
+        <section id="logIn">
+            <header>
+                <h1>Seven and a half game</h1>
+            </header>
+            <content class="center">
+                <div class="logInBox">
+                    <h1>Player information</h1>
+                    <form>
+                        <label>Name </label><input type="text" id="name" title="Enter your name" required/>
+                        <br />
+                        <label>Inital Money </label> <input type="number" id="money" title="Enter the money you want to play" required/>
+                        <br />
+                        <button type="button" id="Play" onclick="startGame()">Play!</button>
+                    </form>
+                </div>            
+            </content>
+        </section>
+
+        <section id="Game" style="display: none;">
+            <h1 style="color: rgb(236, 234, 234);">Seven and a half game</h1>
+            
+            <div class="playerInfoBox">
+                <div class="playerInfo">
+                    <p id="playerName"></p>
+                    <p id="playerMoney"></p>
+                </div>
+            </div>
+
+            <div class="center" id="continueGame">
+                <button type="button" id="newRound" onclick="startRound()">New Round</button>
+                <button type="button" id="endGame" onclick="endGame()">End Game</button>
+            </div>
+
+            <div id="playing" style="display: none;">
+                <h3 style="color: rgb(236, 234, 234);" >Dealer</h3>
+                <ul id="dealerList" style="color: rgb(189, 187, 187);"></ul>
+                <h3 style="color: rgb(236, 234, 234);">Player</h3>
+                <ul id="playerList" style="color: rgb(189, 187, 187);"></ul>
+                <div class="bottom" id="bottomButtons">
+                    <button  onclick="giveCardPlayer('playerList')">More cards</button>
+                    <button onclick="giveCardDealer('dealerList')">STOP</button>
+                </div>
+            </div>
+            
+        </section>
+    
+        
+    </body>
+</html>

@@ -1,0 +1,40 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #1d2b64, #f8cdd4);
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    color: #FFFFFF;
+}
+
+#clock{
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.time{
+    font-size: 6rem;
+    font-weight: 300;
+    letter-spacing: 0.1rem;
+    color: #FFFFFF;
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    margin-bottom: 10px;
+}
+
+.separator{
+    font-size: 1.5rem;
+    color: #d3d3d3;
+    letter-spacing: 0.05rem;
+}
+
+#date{
+    font-size: 1.5rem;
+    color: #d3d3d3;
+    letter-spacing: 0.05rem;
+    font-weight: 200;
+}
