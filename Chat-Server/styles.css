@@ -1,0 +1,259 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  background: #f0f0f0;
+}
+
+#sidebar {
+  width: 280px;
+  background: #2c3e50;
+  color: white;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+#sidebar h3 {
+  margin-top: 0;
+  border-bottom: 2px solid #34495e;
+  padding-bottom: 10px;
+}
+
+#roomSelector {
+  margin-bottom: 20px;
+}
+
+#roomSelector label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+#roomSelect {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+  background: #34495e;
+  color: white;
+  cursor: pointer;
+}
+
+#userList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#userList li {
+  padding: 8px;
+  margin: 5px 0;
+  background: #34495e;
+  border-radius: 5px;
+}
+
+#userList li:before {
+  content: "👤 ";
+}
+
+#chatContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+#header {
+  background: #3498db;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#currentRoom {
+  font-size: 0.9em;
+  opacity: 0.9;
+  margin-top: 5px;
+}
+
+#messages {
+  list-style-type: none;
+  margin: 0;
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+#messages > li {
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 8px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+#messages > li.own-message {
+  background: #3498db;
+  color: white;
+  margin-left: auto;
+  text-align: right;
+}
+
+#messages > li.other-message {
+  background: #ecf0f1;
+  color: #2c3e50;
+}
+
+#messages > li.private-message {
+  background: #9b59b6;
+  color: white;
+  margin-left: auto;
+  text-align: right;
+  border: 2px solid #8e44ad;
+}
+
+#messages > li.received-private-message {
+  background: #e8d5f0;
+  color: #2c3e50;
+  border: 2px solid #9b59b6;
+}
+
+#messages > li.system-message {
+  background: #f39c12;
+  color: white;
+  text-align: center;
+  margin: 10px auto;
+  font-style: italic;
+  max-width: 50%;
+}
+
+.nickname {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.message-text {
+  display: inline;
+}
+
+#typingIndicator {
+  padding: 10px 20px;
+  height: 30px;
+  font-style: italic;
+  color: #7f8c8d;
+  min-height: 30px;
+}
+
+#formContainer {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  border-top: 1px solid #ddd;
+}
+
+#form {
+  display: flex;
+  gap: 10px;
+}
+
+#input {
+  border: 2px solid #3498db;
+  padding: 12px 20px;
+  flex-grow: 1;
+  border-radius: 25px;
+  font-size: 14px;
+}
+
+#input:focus {
+  outline: none;
+  border-color: #2980b9;
+}
+
+#form > button {
+  background: #3498db;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#form > button:hover {
+  background: #2980b9;
+}
+
+#nicknameModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#nicknameModal.hidden {
+  display: none;
+}
+
+#nicknameForm {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  min-width: 400px;
+}
+
+#nicknameForm h2 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+#nicknameInput,
+#roomSelectModal {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 2px solid #3498db;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+#roomSelectModal {
+  cursor: pointer;
+}
+
+#nicknameForm label {
+  display: block;
+  text-align: left;
+  margin-top: 10px;
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+#nicknameForm button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#nicknameForm button:hover {
+  background: #2980b9;
+}

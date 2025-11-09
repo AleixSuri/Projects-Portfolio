@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO Xat Millorat</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <!-- Modal per establir el nickname -->
+    <div id="nicknameModal">
+      <div id="nicknameForm">
+        <h2>Benvingut al Xat! 💬</h2>
+        
+        <label for="nicknameInput">Nom d'usuari:</label>
+        <input
+          id="nicknameInput"
+          type="text"
+          maxlength="20"
+          autocomplete="off"
+          autofocus
+          placeholder="Introdueix el teu nom..."
+        />
+        
+        <label for="roomSelectModal">Tria una sala:</label>
+        <select id="roomSelectModal">
+          <option value="General">🏠 General</option>
+          <option value="Tecnologia">💻 Tecnologia</option>
+          <option value="Esports">⚽ Esports</option>
+          <option value="Música">🎵 Música</option>
+        </select>
+        
+        <button onclick="setNickname()">Entrar al Xat</button>
+      </div>
+    </div>
+
+    <!-- Sidebar amb la llista d'usuaris i sales -->
+    <div id="sidebar">
+      <div id="roomSelector">
+        <label for="roomSelect">📍 Sala actual:</label>
+        <select id="roomSelect" onchange="changeRoom()">
+          <option value="General">🏠 General</option>
+          <option value="Tecnologia">💻 Tecnologia</option>
+          <option value="Esports">⚽ Esports</option>
+          <option value="Música">🎵 Música</option>
+        </select>
+      </div>
+      
+      <h3>👥 Usuaris a la sala</h3>
+      <ul id="userList"></ul>
+    </div>
+
+    <!-- Contenidor principal del xat -->
+    <div id="chatContainer">
+      <div id="header">
+        <h1>💬 Xat Millorat amb Socket.IO</h1>
+        <div id="currentRoom">Sala: General</div>
+      </div>
+
+      <ul id="messages"></ul>
+
+      <div id="typingIndicator"></div>
+
+      <div id="formContainer">
+        <form id="form" action="">
+          <input
+            id="input"
+            autocomplete="off"
+            placeholder="Escriu un missatge... (usa @usuari per missatge privat)"
+          />
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      var myNickname = "";
+      var currentRoom = "General";
+      var typingTimer;
+      var isTyping = false;
+
+      // Establir el nickname i sala inicial
+      function setNickname() {
+        var nicknameInput = document.getElementById("nicknameInput");
+        var roomSelectModal = document.getElementById("roomSelectModal");
+        var nickname = nicknameInput.value.trim();
+        var room = roomSelectModal.value;
+
+        if (nickname) {
+          myNickname = nickname;
+          currentRoom = room;
+          
+          socket.emit("set nickname", { nickname: nickname, room: room });
+          
+          document.getElementById("nicknameModal").classList.add("hidden");
+          document.getElementById("roomSelect").value = room;
+          document.getElementById("currentRoom").textContent = "Sala: " + room;
+          document.getElementById("input").focus();
+        } else {
+          alert("Si us plau, introdueix un nom d'usuari vàlid");
+        }
+      }
+
+      // Canviar de sala
+      function changeRoom() {
+        var roomSelect = document.getElementById("roomSelect");
+        var newRoom = roomSelect.value;
+        
+        if (newRoom !== currentRoom) {
+          socket.emit("change room", newRoom);
+        }
+      }
+
+      // Permetre prémer Enter al modal del nickname
+      document
+        .getElementById("nicknameInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            setNickname();
+          }
+        });
+
+      var form = document.getElementById("form");
+      var input = document.getElementById("input");
+      var messages = document.getElementById("messages");
+      var typingIndicator = document.getElementById("typingIndicator");
+      var userList = document.getElementById("userList");
+
+      // Enviar missatge
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (input.value && myNickname) {
+          var messageText = input.value;
+          
+          // Comprovar si és un missatge privat (comença amb @usuari)
+          var privateMessageMatch = messageText.match(/^@(\w+)\s+(.+)/);
+          
+          if (privateMessageMatch) {
+            // Missatge privat
+            var recipient = privateMessageMatch[1];
+            var privateMsg = privateMessageMatch[2];
+            
+            // Enviar al servidor (el servidor l'enviarà a ambdós usuaris si estan a la mateixa sala)
+            socket.emit("private message", {
+              from: myNickname,
+              to: recipient,
+              message: privateMsg
+            });
+          } else {
+            // Missatge públic normal
+            var messageData = {
+              nickname: myNickname,
+              message: messageText,
+            };
+
+            // El CLIENT mostra el seu propi missatge (millora 1)
+            addMessage(myNickname, messageText, true);
+
+            // Enviem al servidor perquè el difongui a la resta
+            socket.emit("chat message", messageData);
+          }
+
+          input.value = "";
+          socket.emit("stop typing");
+          isTyping = false;
+        }
+      });
+
+      // Detectar quan l'usuari està escrivint
+      input.addEventListener("input", function () {
+        if (!isTyping && input.value) {
+          socket.emit("typing", myNickname);
+          isTyping = true;
+        }
+
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function () {
+          socket.emit("stop typing");
+          isTyping = false;
+        }, 1000);
+      });
+
+      // Funció per afegir missatges públics
+      function addMessage(nickname, message, isOwn) {
+        var item = document.createElement("li");
+        item.className = isOwn ? "own-message" : "other-message";
+
+        var nicknameSpan = document.createElement("span");
+        nicknameSpan.className = "nickname";
+        nicknameSpan.textContent = nickname + ":";
+
+        var messageSpan = document.createElement("span");
+        messageSpan.className = "message-text";
+        messageSpan.textContent = message;
+
+        item.appendChild(nicknameSpan);
+        item.appendChild(messageSpan);
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      // Funció per afegir missatges privats
+      function addPrivateMessage(from, to, message, isSent) {
+        var item = document.createElement("li");
+        item.className = isSent ? "private-message" : "received-private-message";
+
+        var prefix = isSent ? "🔒 Privat a " + to + ": " : "🔒 Privat de " + from + ": ";
+
+        var prefixSpan = document.createElement("span");
+        prefixSpan.className = "nickname";
+        prefixSpan.textContent = prefix;
+
+        var messageSpan = document.createElement("span");
+        messageSpan.className = "message-text";
+        messageSpan.textContent = message;
+
+        item.appendChild(prefixSpan);
+        item.appendChild(messageSpan);
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      // Funció per afegir missatges del sistema
+      function addSystemMessage(message) {
+        var item = document.createElement("li");
+        item.className = "system-message";
+        item.textContent = message;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      // Actualitzar la llista d'usuaris
+      function updateUserList(users) {
+        userList.innerHTML = "";
+        users.forEach(function (user) {
+          if (user.nickname !== myNickname) {
+            var li = document.createElement("li");
+            li.textContent = user.nickname;
+            userList.appendChild(li);
+          }
+        });
+      }
+
+      // Rebre missatges d'altres usuaris
+      socket.on("chat message", function (data) {
+        addMessage(data.nickname, data.message, false);
+      });
+
+      // Rebre missatges privats
+      socket.on("private message", function (data) {
+        // Determinar si som l'emissor o el receptor
+        var isSent = (data.from === myNickname);
+        var otherUser = isSent ? data.to : data.from;
+        
+        addPrivateMessage(data.from, data.to, data.message, isSent);
+      });
+
+      // Error en missatge privat
+      socket.on("private message error", function (data) {
+        addSystemMessage("Error: No es pot enviar missatge a @" + data.to + " - " + data.message);
+      });
+
+      // Notificació d'usuari que entra
+      socket.on("user joined", function (nickname) {
+        addSystemMessage(nickname + " s'ha unit a la sala");
+      });
+
+      // Notificació d'usuari que surt
+      socket.on("user left", function (nickname) {
+        addSystemMessage(nickname + " ha sortit de la sala");
+      });
+
+      // Actualitzar llista d'usuaris
+      socket.on("user list", function (users) {
+        updateUserList(users);
+      });
+
+      // Confirmació de canvi de sala
+      socket.on("room changed", function (room) {
+        currentRoom = room;
+        document.getElementById("currentRoom").textContent = "Sala: " + room;
+        messages.innerHTML = "";
+        addSystemMessage("Has entrat a la sala: " + room);
+      });
+
+      // Indicador d'escriptura
+      socket.on("typing", function (nickname) {
+        typingIndicator.textContent = nickname + " està escrivint...";
+      });
+
+      socket.on("stop typing", function () {
+        typingIndicator.textContent = "";
+      });
+    </script>
+  </body>
+</html>
